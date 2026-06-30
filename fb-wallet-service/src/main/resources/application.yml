@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: fb-wallet-service
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2s
+
+server:
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+fb:
+  callback:
+    # 生产必须打开，并替换为 FB 提供的正式签名规则/密钥。
+    signature-enabled: ${FB_CALLBACK_SIGNATURE_ENABLED:false}
+    secret: ${FB_CALLBACK_SECRET:change-me}
+    merchant-id: ${FB_MERCHANT_ID:}
+    # 留空表示开发环境允许所有来源；生产填 FB 出口 IP。
+    allowed-ips: ${FB_CALLBACK_ALLOWED_IPS:}
+  redis:
+    prefix: ${FB_REDIS_PREFIX:fb}
+    lock-ttl: 10s
+    transaction-ttl: 30d
+    order-ttl: 90d
+  wallet:
+    default-currency: ${FB_DEFAULT_CURRENCY:CNY}
+    # 开发默认余额；生产应改为你们真实钱包余额服务或数据库。
+    initial-balance: ${FB_INITIAL_BALANCE:0.00}
+  data-service:
+    pull-enabled: ${FB_DATA_PULL_ENABLED:false}
+    pull-delay-ms: ${FB_DATA_PULL_DELAY_MS:300000}
+    base-url: ${FB_DATA_SERVICE_BASE_URL:https://api.example.com}
+    app-secret: ${FB_DATA_SERVICE_APP_SECRET:change-me}
