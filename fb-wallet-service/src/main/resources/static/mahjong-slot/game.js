@@ -230,6 +230,26 @@ function createTile(symbol, reelIndex, rowIndex) {
   return tile;
 }
 
+function renderResultReel(reelIndex) {
+  const reel = document.createElement("div");
+  reel.className = "reel";
+  state.grid[reelIndex].forEach((symbol, rowIndex) => reel.append(createTile(symbol, reelIndex, rowIndex)));
+  return reel;
+}
+
+function renderSpinningReel(reelIndex) {
+  const reel = document.createElement("div");
+  reel.className = "reel spinning";
+  const stripEl = document.createElement("div");
+  stripEl.className = "reel-strip";
+  stripEl.style.setProperty("--spin-speed", `${state.turbo ? 360 : 520}ms`);
+  Array.from({ length: 18 }, () => weightedPick()).forEach((symbol, index) => {
+    stripEl.append(createTile(symbol, reelIndex, index % 3));
+  });
+  reel.append(stripEl);
+  return reel;
+}
+
 function renderPaytable() {
   els.payList.innerHTML = symbols
     .filter((symbol) => !symbol.wild)
@@ -254,12 +274,12 @@ function initialGrid() {
 
 function renderGrid() {
   els.reels.innerHTML = "";
-  state.grid.forEach((reelSymbols, reelIndex) => {
-    const reel = document.createElement("div");
-    reel.className = "reel";
-    reelSymbols.forEach((symbol, rowIndex) => reel.append(createTile(symbol, reelIndex, rowIndex)));
-    els.reels.append(reel);
-  });
+  state.grid.forEach((_, reelIndex) => els.reels.append(renderResultReel(reelIndex)));
+}
+
+function replaceReel(reelIndex, reelElement) {
+  const current = els.reels.children[reelIndex];
+  if (current) current.replaceWith(reelElement);
 }
 
 function updateStats() {
@@ -539,23 +559,19 @@ async function spin() {
   state.round += 1;
   updateStats();
 
-  const reelElements = [...document.querySelectorAll(".reel")];
-  reelElements.forEach((reel) => {
-    reel.classList.remove("settled");
-    reel.classList.add("spinning");
-  });
+  for (let reel = 0; reel < 5; reel += 1) {
+    replaceReel(reel, renderSpinningReel(reel));
+  }
 
-  const baseDelay = state.turbo ? 85 : 210;
-  const staggerDelay = state.turbo ? 52 : 120;
+  const baseDelay = state.turbo ? 340 : 680;
+  const staggerDelay = state.turbo ? 135 : 250;
 
   for (let reel = 0; reel < 5; reel += 1) {
-    await wait(baseDelay + reel * staggerDelay);
+    await wait(reel === 0 ? baseDelay : staggerDelay);
     state.grid[reel] = Array.from({ length: 3 }, weightedPick);
-    renderGrid();
-    [...document.querySelectorAll(".reel")].forEach((el, index) => {
-      if (index > reel) el.classList.add("spinning");
-      if (index === reel) el.classList.add("settled");
-    });
+    const resultReel = renderResultReel(reel);
+    resultReel.classList.add("settled");
+    replaceReel(reel, resultReel);
     audio.reelStop(reel);
   }
 
