@@ -45,6 +45,7 @@ const state = {
   autoRemaining: 0,
   autoMenuOpen: false,
   autoTimer: null,
+  atmosphereTimer: null,
   turbo: false,
   sound: true,
   grid: []
@@ -297,10 +298,14 @@ function showBanner(title, amount) {
   els.winTitle.textContent = title;
   els.winAmount.textContent = amount;
   els.winBanner.classList.add("show");
-  window.setTimeout(() => els.winBanner.classList.remove("show"), 1600);
+  window.setTimeout(() => els.winBanner.classList.remove("show"), 4600);
 }
 
 function clearAtmosphere() {
+  if (state.atmosphereTimer) {
+    window.clearTimeout(state.atmosphereTimer);
+    state.atmosphereTimer = null;
+  }
   els.coinLayer.innerHTML = "";
   els.sparkLayer.innerHTML = "";
   els.winEffects.classList.remove("burst");
@@ -319,8 +324,10 @@ function triggerAtmosphere(totalWin, scatterCount = 0) {
         : "WIN";
   const coinCount = tier === "MEGA WIN" ? 42 : tier === "BIG WIN" ? 28 : tier === "NICE WIN" ? 16 : 8;
   const sparkCount = tier === "MEGA WIN" ? 34 : tier === "BIG WIN" ? 24 : 14;
-  const coinSoundCount = tier === "MEGA WIN" ? 30 : tier === "BIG WIN" ? 22 : tier === "NICE WIN" ? 14 : 8;
-  const coinSoundInterval = tier === "MEGA WIN" ? 42 : tier === "BIG WIN" ? 48 : 58;
+  const coinSoundCount = tier === "MEGA WIN" ? 70 : tier === "BIG WIN" ? 54 : tier === "NICE WIN" ? 36 : 20;
+  const coinSoundInterval = tier === "MEGA WIN" ? 64 : tier === "BIG WIN" ? 70 : 82;
+  const effectDuration = tier === "MEGA WIN" ? 7600 : tier === "BIG WIN" ? 6500 : tier === "NICE WIN" ? 5200 : 4200;
+  const calloutDuration = tier === "MEGA WIN" ? 7.1 : tier === "BIG WIN" ? 6.1 : 4.9;
   const machine = document.querySelector(".machine");
 
   els.winEffects.classList.remove("burst");
@@ -332,6 +339,7 @@ function triggerAtmosphere(totalWin, scatterCount = 0) {
   if (tier !== "WIN") {
     els.bigWinTitle.textContent = tier;
     els.bigWinAmount.textContent = `+${totalWin.toLocaleString("zh-Hant")}`;
+    els.bigWinCallout.style.setProperty("--callout-duration", `${calloutDuration}s`);
     els.bigWinCallout.classList.remove("show");
     void els.bigWinCallout.offsetWidth;
     els.bigWinCallout.classList.add("show");
@@ -342,8 +350,8 @@ function triggerAtmosphere(totalWin, scatterCount = 0) {
     coin.className = "coin";
     coin.style.setProperty("--x", `${Math.round(Math.random() * 100)}%`);
     coin.style.setProperty("--size", `${18 + Math.round(Math.random() * 16)}px`);
-    coin.style.setProperty("--delay", `${Math.random() * 0.45}s`);
-    coin.style.setProperty("--duration", `${1.15 + Math.random() * 0.95}s`);
+    coin.style.setProperty("--delay", `${Math.random() * (effectDuration / 1700)}s`);
+    coin.style.setProperty("--duration", `${2.9 + Math.random() * (effectDuration / 1800)}s`);
     coin.style.setProperty("--drift", `${Math.round((Math.random() - 0.5) * 180)}px`);
     coin.style.setProperty("--rotate", `${Math.round(360 + Math.random() * 820)}deg`);
     els.coinLayer.append(coin);
@@ -355,17 +363,18 @@ function triggerAtmosphere(totalWin, scatterCount = 0) {
     spark.style.setProperty("--x", `${18 + Math.round(Math.random() * 64)}%`);
     spark.style.setProperty("--y", `${22 + Math.round(Math.random() * 36)}%`);
     spark.style.setProperty("--size", `${5 + Math.round(Math.random() * 9)}px`);
-    spark.style.setProperty("--delay", `${Math.random() * 0.28}s`);
-    spark.style.setProperty("--duration", `${0.62 + Math.random() * 0.55}s`);
+    spark.style.setProperty("--delay", `${Math.random() * 1.15}s`);
+    spark.style.setProperty("--duration", `${1.65 + Math.random() * 1.1}s`);
     spark.style.setProperty("--dx", `${Math.round((Math.random() - 0.5) * 220)}px`);
     spark.style.setProperty("--dy", `${Math.round((Math.random() - 0.5) * 160)}px`);
     els.sparkLayer.append(spark);
   }
 
-  window.setTimeout(() => {
+  state.atmosphereTimer = window.setTimeout(() => {
+    state.atmosphereTimer = null;
     clearAtmosphere();
     machine?.classList.remove("celebrating", "mega-celebrating");
-  }, tier === "MEGA WIN" ? 2600 : 2100);
+  }, effectDuration);
 }
 
 function stopAuto(message) {

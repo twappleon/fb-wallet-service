@@ -125,7 +125,7 @@ button {
 }
 
 .win-effects.burst .win-flash {
-  animation: screen-flash 820ms ease-out;
+  animation: screen-flash 1.45s ease-out;
 }
 
 .coin-layer,
@@ -202,7 +202,7 @@ button {
 }
 
 .big-win-callout.show {
-  animation: big-win-pop 1.9s ease-in-out forwards;
+  animation: big-win-pop var(--callout-duration, 3.4s) ease-in-out forwards;
 }
 
 .big-win-callout span {
@@ -227,7 +227,9 @@ button {
 
 @keyframes screen-flash {
   0% { opacity: 0; transform: translateX(-15%) skewX(-8deg); }
-  24% { opacity: 1; }
+  14% { opacity: 0.95; }
+  42% { opacity: 0.18; }
+  64% { opacity: 0.58; }
   100% { opacity: 0; transform: translateX(18%) skewX(-8deg); }
 }
 
@@ -236,7 +238,8 @@ button {
     opacity: 0;
     transform: translate3d(0, -20px, 0) rotate(0deg) scale(0.82);
   }
-  14% { opacity: 1; }
+  10% { opacity: 1; }
+  74% { opacity: 1; }
   100% {
     opacity: 0;
     transform: translate3d(var(--drift), calc(100vh + 90px), 0) rotate(var(--rotate)) scale(1);
@@ -248,7 +251,8 @@ button {
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.15);
   }
-  18% { opacity: 1; }
+  16% { opacity: 1; }
+  58% { opacity: 0.72; }
   100% {
     opacity: 0;
     transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.2);
@@ -257,10 +261,11 @@ button {
 
 @keyframes big-win-pop {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.66); }
-  12% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
-  22% { transform: translate(-50%, -50%) scale(0.98); }
-  78% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.08); }
+  10% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+  18% { transform: translate(-50%, -50%) scale(0.98); }
+  72% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  88% { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.12); }
 }
 
 @keyframes cabinet-pop {
@@ -697,7 +702,7 @@ h1 {
 .win-banner.show {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
-  animation: banner-glow 1.6s ease-in-out;
+  animation: banner-glow 4.4s ease-in-out;
 }
 
 .win-banner span {
