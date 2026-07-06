@@ -3,12 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>麻將胡了 Slot</title>
-    <link rel="stylesheet" href="./styles.css?v=full-suits-20260706" />
+    <title>台灣麻將胡了 Slot</title>
+    <link rel="stylesheet" href="./styles.css?v=taiwan-set-20260706" />
   </head>
   <body>
     <main class="game-shell">
-      <section class="machine" aria-label="麻將胡了 slot game">
+      <section class="machine" aria-label="台灣麻將胡了 slot game">
         <div class="cabinet-lights" aria-hidden="true"></div>
         <div class="win-effects" id="winEffects" aria-hidden="true">
           <div class="win-flash"></div>
@@ -23,8 +23,8 @@
           <div class="brand-lockup">
             <div class="seal" aria-hidden="true">胡</div>
             <div>
-              <p class="kicker">Fortune Reels</p>
-              <h1>麻將胡了</h1>
+              <p class="kicker">Taiwan 16 Tiles</p>
+              <h1>台灣麻將胡了</h1>
             </div>
           </div>
           <div class="jackpot-sign" aria-live="polite">
@@ -62,14 +62,14 @@
 
         <section class="reels-wrap">
           <div class="line-label left">9 LINES</div>
-          <div class="line-label right">WILD 花</div>
+          <div class="line-label right">八花 WILD</div>
           <canvas id="winCanvas" class="win-canvas" width="980" height="560" aria-hidden="true"></canvas>
           <div class="win-banner" id="winBanner" aria-live="polite">
             <span id="winTitle">準備開局</span>
             <strong id="winAmount">按下開始</strong>
           </div>
           <div class="reel-stage">
-            <div class="reels" id="reels" aria-label="五軸三行麻將 slot reels"></div>
+            <div class="reels" id="reels" aria-label="五軸三行台灣麻將 slot reels"></div>
           </div>
         </section>
 
@@ -116,8 +116,8 @@
         </section>
 
         <section class="status-strip" aria-live="polite">
-          <span id="statusText">連線三張以上同牌即可胡牌，花牌可代替任意普通牌。</span>
-          <span class="session-meta">DEMO MODE · RTP 96.2% · VOLATILITY HIGH</span>
+          <span id="statusText">採台灣麻將 144 張牌池：萬、筒、條、字牌與八花。</span>
+          <span class="session-meta">DEMO MODE · 144 TILES · TAIWAN 16</span>
         </section>
       </section>
 
@@ -125,18 +125,19 @@
         <div class="panel-heading">
           <div>
             <h2>賠付表</h2>
-            <span>9 Lines · 5 Reels · Wild / Scatter</span>
+            <span>9 Lines · 5 Reels · 144 Tiles · 八花 Wild</span>
           </div>
           <button class="icon-button close-rules" id="closeRules" type="button" aria-label="關閉賠付表">×</button>
         </div>
         <div class="pay-list" id="payList"></div>
         <div class="rules-copy">
-          <p>連線從左至右計算。花牌為 Wild，可替代萬、筒、條、風、龍牌。三個以上發財 Scatter 觸發免費旋轉。</p>
+          <p>台灣麻將牌池共 144 張：一到九萬、筒、條各四張，東南西北與中發白各四張，春夏秋冬、梅蘭竹菊各一張。</p>
+          <p>連線從左至右計算。八花為 Wild，可替代萬、筒、條、風牌與三元牌。三個以上發財 Scatter 觸發免費旋轉。</p>
           <p>此頁為娛樂 demo，不連接真實錢包或下注系統。</p>
         </div>
       </aside>
     </main>
 
-    <script src="./game.js?v=full-suits-20260706"></script>
+    <script src="./game.js?v=taiwan-set-20260706"></script>
   </body>
 </html>

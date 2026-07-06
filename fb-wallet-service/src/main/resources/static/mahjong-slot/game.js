@@ -4,6 +4,7 @@ const suitPayMultipliers = {
   tong: [0, 0, 5, 16, 55],
   tiao: [0, 0, 5, 16, 55]
 };
+const fourCopies = (tile) => Array.from({ length: 4 }, () => tile.id);
 const suitSymbols = [
   ...Array.from({ length: 9 }, (_, index) => {
     const rank = index + 1;
@@ -43,24 +44,37 @@ const suitSymbols = [
   })
 ];
 
-const symbols = [
-  ...suitSymbols,
+const honorSymbols = [
   { id: "dong", tile: "東", name: "東風", color: "", pays: [0, 0, 5, 15, 45] },
   { id: "nan", tile: "南", name: "南風", color: "", pays: [0, 0, 5, 15, 45] },
   { id: "xi", tile: "西", name: "西風", color: "", pays: [0, 0, 5, 15, 45] },
   { id: "bei", tile: "北", name: "北風", color: "", pays: [0, 0, 5, 15, 45] },
   { id: "zhong", tile: "中", name: "紅中", color: "red", pays: [0, 0, 10, 35, 100] },
   { id: "fa", tile: "發", name: "發財", color: "green", scatter: true, pays: [0, 0, 3, 12, 40] },
-  { id: "bai", tile: "白", name: "白板", color: "", art: "bai", pays: [0, 0, 9, 30, 90] },
-  { id: "wild", tile: "花", name: "花牌 Wild", color: "gold", art: "flower", wild: true, pays: [0, 0, 0, 0, 0] }
+  { id: "bai", tile: "白", name: "白板", color: "", art: "bai", pays: [0, 0, 9, 30, 90] }
+];
+
+const flowerSymbols = [
+  { id: "spring", tile: "春", name: "春", color: "gold", art: "flower", flowerType: "season", flowerArt: "spring", wild: true, pays: [0, 0, 0, 0, 0] },
+  { id: "summer", tile: "夏", name: "夏", color: "gold", art: "flower", flowerType: "season", flowerArt: "summer", wild: true, pays: [0, 0, 0, 0, 0] },
+  { id: "autumn", tile: "秋", name: "秋", color: "gold", art: "flower", flowerType: "season", flowerArt: "autumn", wild: true, pays: [0, 0, 0, 0, 0] },
+  { id: "winter", tile: "冬", name: "冬", color: "gold", art: "flower", flowerType: "season", flowerArt: "winter", wild: true, pays: [0, 0, 0, 0, 0] },
+  { id: "plum", tile: "梅", name: "梅", color: "gold", art: "flower", flowerType: "gentleman", flowerArt: "plum", wild: true, pays: [0, 0, 0, 0, 0] },
+  { id: "orchid", tile: "蘭", name: "蘭", color: "gold", art: "flower", flowerType: "gentleman", flowerArt: "orchid", wild: true, pays: [0, 0, 0, 0, 0] },
+  { id: "bambooFlower", tile: "竹", name: "竹", color: "gold", art: "flower", flowerType: "gentleman", flowerArt: "bamboo-flower", wild: true, pays: [0, 0, 0, 0, 0] },
+  { id: "chrysanthemum", tile: "菊", name: "菊", color: "gold", art: "flower", flowerType: "gentleman", flowerArt: "chrysanthemum", wild: true, pays: [0, 0, 0, 0, 0] }
+];
+
+const symbols = [
+  ...suitSymbols,
+  ...honorSymbols,
+  ...flowerSymbols
 ];
 
 const strip = [
-  "wan1", "wan2", "wan3", "wan4", "wan5", "wan6", "wan7", "wan8", "wan9",
-  "tong1", "tong2", "tong3", "tong4", "tong5", "tong6", "tong7", "tong8", "tong9",
-  "tiao1", "tiao2", "tiao3", "tiao4", "tiao5", "tiao6", "tiao7", "tiao8", "tiao9",
-  "dong", "nan", "xi", "bei", "zhong", "fa", "bai",
-  "wild", "wild", "fa", "zhong", "bai"
+  ...suitSymbols.flatMap(fourCopies),
+  ...honorSymbols.flatMap(fourCopies),
+  ...flowerSymbols.map((tile) => tile.id)
 ];
 
 const lines = [
@@ -278,7 +292,8 @@ function renderTileFace(symbol, compact = false) {
   }
   if (symbol.art === "flower") {
     return `
-      <span class="tile-art flower-art ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+      <span class="tile-art flower-art ${symbol.flowerType} flower-${symbol.flowerArt} ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+        <span class="flower-caption">${symbol.tile}</span>
         <i class="flower-stem"></i>
         <i class="flower-leaf leaf-left"></i>
         <i class="flower-leaf leaf-right"></i>
@@ -300,7 +315,7 @@ function renderTileFace(symbol, compact = false) {
 
 function createTile(symbol, reelIndex, rowIndex) {
   const tile = document.createElement("div");
-  tile.className = `tile ${symbol.color} ${symbol.art ? "graphic" : ""} ${symbol.wild ? "wild" : ""} ${symbol.scatter ? "scatter" : ""}`;
+  tile.className = `tile ${symbol.color} ${symbol.art ? "graphic" : ""} ${symbol.wild ? "wild" : ""} ${symbol.scatter ? "scatter" : ""} ${symbol.flowerType ? "flower-tile" : ""}`;
   tile.dataset.id = symbol.id;
   tile.dataset.reel = reelIndex;
   tile.dataset.row = rowIndex;
@@ -330,15 +345,17 @@ function renderSpinningReel(reelIndex) {
 
 function renderPaytable() {
   els.payList.innerHTML = symbols
-    .filter((symbol) => !symbol.wild)
     .map((symbol) => {
-      const type = symbol.scatter ? "Scatter" : "連線";
+      const type = symbol.wild ? "台灣花牌 Wild" : symbol.scatter ? "Scatter" : "連線";
+      const payText = symbol.wild
+        ? "春夏秋冬、梅蘭竹菊可替代普通牌"
+        : `${type} 3/4/5：${symbol.pays[2]}x / ${symbol.pays[3]}x / ${symbol.pays[4]}x`;
       return `
         <div class="pay-row">
           <div class="pay-symbol ${symbol.art ? "graphic" : ""}">${renderTileFace(symbol, true)}</div>
           <div>
             <strong>${symbol.name}</strong>
-            <span>${type} 3/4/5：${symbol.pays[2]}x / ${symbol.pays[3]}x / ${symbol.pays[4]}x</span>
+            <span>${payText}</span>
           </div>
         </div>
       `;

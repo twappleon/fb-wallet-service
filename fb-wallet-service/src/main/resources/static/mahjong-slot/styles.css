@@ -820,6 +820,18 @@ h1 {
   height: min(84%, 98px);
 }
 
+.flower-caption {
+  position: absolute;
+  z-index: 3;
+  top: 4%;
+  left: 8%;
+  color: #9d1c2e;
+  font-size: clamp(18px, 2.4vw, 30px);
+  font-weight: 1000;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
 .flower-art i {
   position: absolute;
   display: block;
@@ -889,6 +901,82 @@ h1 {
   width: 25%;
 }
 
+.flower-spring .flower-bloom,
+.flower-plum .flower-bloom {
+  background:
+    radial-gradient(circle at 50% 50%, #ffd56d 0 10%, transparent 12%),
+    radial-gradient(ellipse at 50% 16%, #f05c76 0 24%, transparent 25%),
+    radial-gradient(ellipse at 84% 48%, #d71f45 0 22%, transparent 23%),
+    radial-gradient(ellipse at 50% 84%, #ba1837 0 23%, transparent 24%),
+    radial-gradient(ellipse at 16% 48%, #f07f8e 0 22%, transparent 23%);
+}
+
+.flower-summer .flower-bloom,
+.flower-chrysanthemum .flower-bloom {
+  background:
+    radial-gradient(circle at 50% 50%, #8b4f00 0 9%, transparent 11%),
+    radial-gradient(ellipse at 50% 16%, #ffd95d 0 25%, transparent 26%),
+    radial-gradient(ellipse at 84% 48%, #f0a91b 0 23%, transparent 24%),
+    radial-gradient(ellipse at 50% 84%, #d98200 0 24%, transparent 25%),
+    radial-gradient(ellipse at 16% 48%, #ffe27f 0 23%, transparent 24%);
+}
+
+.flower-autumn .flower-bloom {
+  border-radius: 66% 34% 58% 42%;
+  background:
+    radial-gradient(circle at 32% 30%, rgba(255, 244, 196, 0.74), transparent 23%),
+    linear-gradient(145deg, #f08a25, #b73721);
+}
+
+.flower-winter .flower-bloom {
+  background:
+    radial-gradient(circle at 50% 50%, #e8fbff 0 12%, transparent 13%),
+    radial-gradient(ellipse at 50% 16%, #d9f7ff 0 24%, transparent 25%),
+    radial-gradient(ellipse at 84% 48%, #9ddbea 0 22%, transparent 23%),
+    radial-gradient(ellipse at 50% 84%, #6bb8d3 0 23%, transparent 24%),
+    radial-gradient(ellipse at 16% 48%, #f6feff 0 22%, transparent 23%);
+}
+
+.flower-orchid .flower-bloom {
+  background:
+    radial-gradient(circle at 50% 50%, #ffe0f7 0 10%, transparent 12%),
+    radial-gradient(ellipse at 50% 16%, #c879db 0 24%, transparent 25%),
+    radial-gradient(ellipse at 84% 48%, #8b48b2 0 22%, transparent 23%),
+    radial-gradient(ellipse at 50% 84%, #6b3398 0 23%, transparent 24%),
+    radial-gradient(ellipse at 16% 48%, #d99aea 0 22%, transparent 23%);
+}
+
+.flower-bamboo-flower .flower-bloom {
+  width: 10%;
+  height: 52%;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, #2ea873 0 30%, #f0fff7 31% 38%, #13714d 39% 66%, #f0fff7 67% 74%, #0d5a3f 75% 100%);
+}
+
+.flower-bamboo-flower .bloom-one {
+  left: 41%;
+  top: 20%;
+}
+
+.flower-bamboo-flower .bloom-two {
+  left: 53%;
+  top: 28%;
+}
+
+.flower-bamboo-flower .bloom-three {
+  left: 30%;
+  top: 34%;
+}
+
+.flower-art.season .flower-caption {
+  color: #b02234;
+}
+
+.flower-art.gentleman .flower-caption {
+  color: #0f6d51;
+}
+
 .tile-art.compact.flower-art .flower-bloom {
   width: 28%;
 }
@@ -901,6 +989,12 @@ h1 {
 .tile-art.compact.flower-art .flower-stem {
   width: 6%;
   height: 58%;
+}
+
+.tile-art.compact.flower-art .flower-caption {
+  top: 3%;
+  left: 8%;
+  font-size: 13px;
 }
 
 .bai-art {
