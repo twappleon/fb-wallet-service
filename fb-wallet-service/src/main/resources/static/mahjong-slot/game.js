@@ -1,7 +1,50 @@
+const rankNames = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+const suitPayMultipliers = {
+  wan: [0, 0, 5, 18, 60],
+  tong: [0, 0, 5, 16, 55],
+  tiao: [0, 0, 5, 16, 55]
+};
+const suitSymbols = [
+  ...Array.from({ length: 9 }, (_, index) => {
+    const rank = index + 1;
+    return {
+      id: `wan${rank}`,
+      tile: "萬",
+      rank,
+      name: `${rankNames[rank]}萬`,
+      color: "red",
+      art: "wan",
+      pays: suitPayMultipliers.wan
+    };
+  }),
+  ...Array.from({ length: 9 }, (_, index) => {
+    const rank = index + 1;
+    return {
+      id: `tong${rank}`,
+      tile: "筒",
+      rank,
+      name: `${rankNames[rank]}筒`,
+      color: "green",
+      art: "tong",
+      pays: suitPayMultipliers.tong
+    };
+  }),
+  ...Array.from({ length: 9 }, (_, index) => {
+    const rank = index + 1;
+    return {
+      id: `tiao${rank}`,
+      tile: "條",
+      rank,
+      name: `${rankNames[rank]}條`,
+      color: "green",
+      art: "tiao",
+      pays: suitPayMultipliers.tiao
+    };
+  })
+];
+
 const symbols = [
-  { id: "wan", tile: "萬", name: "萬子", color: "red", art: "wan", pays: [0, 0, 8, 25, 80] },
-  { id: "tong", tile: "筒", name: "筒子", color: "green", art: "tong", pays: [0, 0, 7, 20, 70] },
-  { id: "suo", tile: "索", name: "索子", color: "green", art: "suo", pays: [0, 0, 6, 18, 60] },
+  ...suitSymbols,
   { id: "dong", tile: "東", name: "東風", color: "", pays: [0, 0, 5, 15, 45] },
   { id: "nan", tile: "南", name: "南風", color: "", pays: [0, 0, 5, 15, 45] },
   { id: "xi", tile: "西", name: "西風", color: "", pays: [0, 0, 5, 15, 45] },
@@ -13,9 +56,11 @@ const symbols = [
 ];
 
 const strip = [
-  "wan", "tong", "suo", "dong", "nan", "xi", "bei", "zhong", "fa", "bai",
-  "wan", "tong", "suo", "dong", "nan", "zhong",
-  "wild", "wan", "tong", "suo", "fa", "xi", "bei", "bai"
+  "wan1", "wan2", "wan3", "wan4", "wan5", "wan6", "wan7", "wan8", "wan9",
+  "tong1", "tong2", "tong3", "tong4", "tong5", "tong6", "tong7", "tong8", "tong9",
+  "tiao1", "tiao2", "tiao3", "tiao4", "tiao5", "tiao6", "tiao7", "tiao8", "tiao9",
+  "dong", "nan", "xi", "bei", "zhong", "fa", "bai",
+  "wild", "wild", "fa", "zhong", "bai"
 ];
 
 const lines = [
@@ -187,26 +232,47 @@ function weightedPick() {
   return symbolById(strip[index]);
 }
 
+function layoutPositions(rank) {
+  const patterns = {
+    1: [5],
+    2: [1, 9],
+    3: [1, 5, 9],
+    4: [1, 3, 7, 9],
+    5: [1, 3, 5, 7, 9],
+    6: [1, 3, 4, 6, 7, 9],
+    7: [1, 2, 3, 4, 6, 7, 9],
+    8: [1, 2, 3, 4, 6, 7, 8, 9],
+    9: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  };
+  return patterns[rank] || patterns[5];
+}
+
+function renderRankMarks(rank, className) {
+  return layoutPositions(rank)
+    .map((position, index) => `<i class="p${position} ${className}-${index % 2 === 0 ? "primary" : "accent"}"></i>`)
+    .join("");
+}
+
 function renderTileFace(symbol, compact = false) {
   if (symbol.art === "wan") {
     return `
       <span class="tile-art wan-art ${compact ? "compact" : ""}" aria-label="${symbol.name}">
-        <span class="wan-rank">伍</span>
+        <span class="wan-rank">${rankNames[symbol.rank] || "五"}</span>
         <span class="wan-mark">萬</span>
       </span>
     `;
   }
   if (symbol.art === "tong") {
     return `
-      <span class="tile-art dot-art ${compact ? "compact" : ""}" aria-label="${symbol.name}">
-        <i></i><i></i><i></i><i></i><i></i>
+      <span class="tile-art dot-art rank-${symbol.rank} ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+        ${renderRankMarks(symbol.rank, "dot")}
       </span>
     `;
   }
-  if (symbol.art === "suo") {
+  if (symbol.art === "tiao") {
     return `
-      <span class="tile-art bamboo-art ${compact ? "compact" : ""}" aria-label="${symbol.name}">
-        <i></i><i></i><i></i><i></i><i></i>
+      <span class="tile-art bamboo-art rank-${symbol.rank} ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+        ${renderRankMarks(symbol.rank, "bamboo")}
       </span>
     `;
   }
