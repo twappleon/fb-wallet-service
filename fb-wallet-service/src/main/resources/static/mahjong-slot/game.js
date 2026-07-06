@@ -8,7 +8,7 @@ const symbols = [
   { id: "bei", tile: "北", name: "北風", color: "", pays: [0, 0, 5, 15, 45] },
   { id: "zhong", tile: "中", name: "紅中", color: "red", pays: [0, 0, 10, 35, 100] },
   { id: "fa", tile: "發", name: "發財", color: "green", scatter: true, pays: [0, 0, 3, 12, 40] },
-  { id: "bai", tile: "白", name: "白板", color: "", pays: [0, 0, 9, 30, 90] },
+  { id: "bai", tile: "白", name: "白板", color: "", art: "bai", pays: [0, 0, 9, 30, 90] },
   { id: "wild", tile: "花", name: "花牌 Wild", color: "gold", art: "flower", wild: true, pays: [0, 0, 0, 0, 0] }
 ];
 
@@ -214,6 +214,13 @@ function renderTileFace(symbol, compact = false) {
     return `
       <span class="tile-art flower-art ${compact ? "compact" : ""}" aria-label="${symbol.name}">
         <i></i><i></i><i></i><span>花</span>
+      </span>
+    `;
+  }
+  if (symbol.art === "bai") {
+    return `
+      <span class="tile-art bai-art ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+        <i></i>
       </span>
     `;
   }
