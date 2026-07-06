@@ -4,6 +4,7 @@ const suitPayMultipliers = {
   tong: [0, 0, 5, 16, 55],
   tiao: [0, 0, 5, 16, 55]
 };
+const mahjongGlyph = (baseCodePoint, rank) => String.fromCodePoint(baseCodePoint + rank - 1);
 const fourCopies = (tile) => Array.from({ length: 4 }, () => tile.id);
 const suitSymbols = [
   ...Array.from({ length: 9 }, (_, index) => {
@@ -26,6 +27,7 @@ const suitSymbols = [
       rank,
       name: `${rankNames[rank]}筒`,
       color: "green",
+      glyph: mahjongGlyph(0x1f019, rank),
       art: "tong",
       pays: suitPayMultipliers.tong
     };
@@ -38,6 +40,7 @@ const suitSymbols = [
       rank,
       name: `${rankNames[rank]}條`,
       color: "green",
+      glyph: mahjongGlyph(0x1f010, rank),
       art: "tiao",
       pays: suitPayMultipliers.tiao
     };
@@ -278,27 +281,15 @@ function renderTileFace(symbol, compact = false) {
   }
   if (symbol.art === "tong") {
     return `
-      <span class="tile-art dot-art rank-${symbol.rank} ${compact ? "compact" : ""}" aria-label="${symbol.name}">
-        ${renderRankMarks(symbol.rank, "dot")}
+      <span class="tile-art unicode-tile-art dot-art rank-${symbol.rank} ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+        <span class="mahjong-glyph">${symbol.glyph}</span>
       </span>
     `;
   }
   if (symbol.art === "tiao") {
-    if (symbol.rank === 1) {
-      return `
-        <span class="tile-art bamboo-art bird-art rank-1 ${compact ? "compact" : ""}" aria-label="${symbol.name}">
-          <i class="bird-tail"></i>
-          <i class="bird-body"></i>
-          <i class="bird-wing"></i>
-          <i class="bird-head"></i>
-          <i class="bird-beak"></i>
-          <i class="bird-feet"></i>
-        </span>
-      `;
-    }
     return `
-      <span class="tile-art bamboo-art rank-${symbol.rank} ${compact ? "compact" : ""}" aria-label="${symbol.name}">
-        ${renderRankMarks(symbol.rank, "bamboo")}
+      <span class="tile-art unicode-tile-art bamboo-art rank-${symbol.rank} ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+        <span class="mahjong-glyph">${symbol.glyph}</span>
       </span>
     `;
   }
