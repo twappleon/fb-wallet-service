@@ -284,6 +284,18 @@ function renderTileFace(symbol, compact = false) {
     `;
   }
   if (symbol.art === "tiao") {
+    if (symbol.rank === 1) {
+      return `
+        <span class="tile-art bamboo-art bird-art rank-1 ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+          <i class="bird-tail"></i>
+          <i class="bird-body"></i>
+          <i class="bird-wing"></i>
+          <i class="bird-head"></i>
+          <i class="bird-beak"></i>
+          <i class="bird-feet"></i>
+        </span>
+      `;
+    }
     return `
       <span class="tile-art bamboo-art rank-${symbol.rank} ${compact ? "compact" : ""}" aria-label="${symbol.name}">
         ${renderRankMarks(symbol.rank, "bamboo")}

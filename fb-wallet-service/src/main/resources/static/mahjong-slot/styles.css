@@ -649,12 +649,22 @@ h1 {
   color: #c6223a;
 }
 
+.wan-art::before {
+  content: "";
+  position: absolute;
+  inset: 5% 16% auto;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(23, 32, 24, 0.22);
+}
+
 .wan-rank {
   align-self: end;
-  color: #182018;
+  color: #11251c;
   font-size: clamp(21px, 2.8vw, 34px);
   font-weight: 1000;
   line-height: 0.9;
+  font-family: "Times New Roman", "Noto Serif TC", serif;
 }
 
 .wan-mark {
@@ -663,6 +673,8 @@ h1 {
   font-size: clamp(28px, 3.8vw, 48px);
   font-weight: 1000;
   line-height: 0.9;
+  font-family: "Times New Roman", "Noto Serif TC", serif;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.58);
 }
 
 .tile-art.compact .wan-rank {
@@ -671,6 +683,11 @@ h1 {
 
 .tile-art.compact .wan-mark {
   font-size: 19px;
+}
+
+.tile-art.compact.wan-art::before {
+  height: 1px;
+  inset-inline: 18%;
 }
 
 .dot-art {
@@ -684,19 +701,21 @@ h1 {
   display: block;
   width: 92%;
   aspect-ratio: 1;
-  border: 3px solid #10866f;
+  border: 2px solid #006d62;
   border-radius: 50%;
   background:
-    radial-gradient(circle, #c92138 0 18%, transparent 20%),
-    radial-gradient(circle, #fffdf6 0 42%, #e8f4ef 43% 58%, #10866f 59% 64%, transparent 65%);
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.68);
+    radial-gradient(circle at 50% 50%, #c92138 0 13%, #fffdf6 14% 25%, transparent 26%),
+    radial-gradient(circle at 50% 50%, transparent 0 42%, #006d62 43% 52%, #fffdf6 53% 62%, #006d62 63% 72%, transparent 73%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.78),
+    0 1px 0 rgba(0, 70, 58, 0.16);
 }
 
 .dot-art .dot-accent {
-  border-color: #c92138;
+  border-color: #b91531;
   background:
-    radial-gradient(circle, #10866f 0 17%, transparent 19%),
-    radial-gradient(circle, #fffdf6 0 42%, #fff0f2 43% 58%, #c92138 59% 64%, transparent 65%);
+    radial-gradient(circle at 50% 50%, #08735f 0 13%, #fffdf6 14% 25%, transparent 26%),
+    radial-gradient(circle at 50% 50%, transparent 0 42%, #b91531 43% 52%, #fffdf6 53% 62%, #b91531 63% 72%, transparent 73%);
 }
 
 .tile-art.compact.dot-art {
@@ -725,7 +744,8 @@ h1 {
   justify-self: center;
   border-radius: 999px;
   background:
-    linear-gradient(180deg, #25a67d 0 30%, #e9fff5 31% 38%, #16815f 39% 66%, #e9fff5 67% 74%, #0f6d51 75% 100%);
+    radial-gradient(ellipse at 50% 8%, rgba(255, 255, 255, 0.85), transparent 18%),
+    linear-gradient(180deg, #26a56e 0 28%, #f1fff8 29% 36%, #13794f 37% 62%, #f1fff8 63% 70%, #0d5e41 71% 100%);
   box-shadow:
     inset 0 0 0 1px rgba(0, 65, 45, 0.18),
     0 1px 0 rgba(255, 255, 255, 0.6);
@@ -733,7 +753,8 @@ h1 {
 
 .bamboo-art .bamboo-accent {
   background:
-    linear-gradient(180deg, #ce2f45 0 30%, #fff1f3 31% 38%, #ad2138 39% 66%, #fff1f3 67% 74%, #861a2d 75% 100%);
+    radial-gradient(ellipse at 50% 8%, rgba(255, 255, 255, 0.82), transparent 18%),
+    linear-gradient(180deg, #c9253e 0 28%, #fff1f3 29% 36%, #a91b31 37% 62%, #fff1f3 63% 70%, #82182b 71% 100%);
 }
 
 .dot-art .p1,
@@ -781,13 +802,76 @@ h1 {
   grid-area: 3 / 3;
 }
 
-.bamboo-art.rank-1 i {
-  grid-area: 1 / 2 / 4 / 3;
-  width: 44%;
-  height: 94%;
+.bird-art {
+  display: block;
+}
+
+.bird-art i {
+  position: absolute;
+  display: block;
+  box-shadow: none;
+}
+
+.bird-tail {
+  left: 6%;
+  top: 20%;
+  width: 40%;
+  height: 48%;
+  border-radius: 80% 18% 72% 28%;
   background:
-    radial-gradient(circle at 50% 13%, #df3147 0 10%, transparent 11%),
-    linear-gradient(180deg, #159463 0 30%, #eefdf6 31% 37%, #0f744f 38% 64%, #eefdf6 65% 72%, #0a5e42 73% 100%);
+    linear-gradient(32deg, transparent 0 38%, #14694f 39% 48%, transparent 49% 55%, #c6223a 56% 66%, transparent 67%),
+    radial-gradient(ellipse at 80% 46%, #1a986f 0 44%, transparent 45%);
+  transform: rotate(-18deg);
+}
+
+.bird-body {
+  left: 34%;
+  top: 32%;
+  width: 40%;
+  height: 38%;
+  border-radius: 58% 42% 48% 52%;
+  background:
+    radial-gradient(circle at 35% 32%, rgba(255, 255, 255, 0.88), transparent 16%),
+    linear-gradient(145deg, #1fa878, #0c6e4b 58%, #0a4f3a);
+}
+
+.bird-wing {
+  left: 43%;
+  top: 40%;
+  width: 25%;
+  height: 24%;
+  border-radius: 70% 20% 70% 22%;
+  background: linear-gradient(145deg, #cf2c43, #8f1931);
+  transform: rotate(-20deg);
+}
+
+.bird-head {
+  right: 16%;
+  top: 24%;
+  width: 22%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 66% 38%, #16120f 0 8%, transparent 9%),
+    linear-gradient(145deg, #2aa979, #0e6f50);
+}
+
+.bird-beak {
+  right: 7%;
+  top: 34%;
+  width: 14%;
+  height: 9%;
+  clip-path: polygon(0 15%, 100% 50%, 0 85%);
+  background: #c6223a;
+}
+
+.bird-feet {
+  left: 46%;
+  bottom: 18%;
+  width: 25%;
+  height: 9%;
+  background:
+    linear-gradient(90deg, transparent 0 18%, #8a4b00 19% 28%, transparent 29% 48%, #8a4b00 49% 58%, transparent 59%);
 }
 
 .bamboo-art.rank-2 .p1,
@@ -813,6 +897,24 @@ h1 {
 
 .tile-art.compact.bamboo-art i {
   box-shadow: none;
+}
+
+.tile-art.compact.bird-art .bird-tail {
+  left: 5%;
+  width: 43%;
+}
+
+.tile-art.compact.bird-art .bird-body {
+  left: 34%;
+  top: 34%;
+}
+
+.tile-art.compact.bird-art .bird-head {
+  right: 14%;
+}
+
+.tile-art.compact.bird-art .bird-beak {
+  right: 5%;
 }
 
 .flower-art {
