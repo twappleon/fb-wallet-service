@@ -104,6 +104,17 @@ const audio = {
     volume.connect(this.context.destination);
     oscillator.start();
     oscillator.stop(this.context.currentTime + duration);
+  },
+  coinDrop(count = 8, interval = 58) {
+    if (!state.sound) return;
+    const notes = [988, 1175, 1319, 1480, 1760];
+    for (let index = 0; index < count; index += 1) {
+      window.setTimeout(() => {
+        const note = notes[index % notes.length] + Math.random() * 34;
+        this.play(note, 0.045, "triangle", 0.035);
+        this.play(note / 2, 0.05, "square", 0.012);
+      }, index * interval);
+    }
   }
 };
 
@@ -308,12 +319,15 @@ function triggerAtmosphere(totalWin, scatterCount = 0) {
         : "WIN";
   const coinCount = tier === "MEGA WIN" ? 42 : tier === "BIG WIN" ? 28 : tier === "NICE WIN" ? 16 : 8;
   const sparkCount = tier === "MEGA WIN" ? 34 : tier === "BIG WIN" ? 24 : 14;
+  const coinSoundCount = tier === "MEGA WIN" ? 30 : tier === "BIG WIN" ? 22 : tier === "NICE WIN" ? 14 : 8;
+  const coinSoundInterval = tier === "MEGA WIN" ? 42 : tier === "BIG WIN" ? 48 : 58;
   const machine = document.querySelector(".machine");
 
   els.winEffects.classList.remove("burst");
   void els.winEffects.offsetWidth;
   els.winEffects.classList.add("burst");
   machine?.classList.add(tier === "MEGA WIN" || tier === "BIG WIN" ? "mega-celebrating" : "celebrating");
+  audio.coinDrop(coinSoundCount, coinSoundInterval);
 
   if (tier !== "WIN") {
     els.bigWinTitle.textContent = tier;
