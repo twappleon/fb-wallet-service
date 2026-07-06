@@ -75,6 +75,12 @@ const els = {
   winBanner: document.querySelector("#winBanner"),
   winTitle: document.querySelector("#winTitle"),
   winAmount: document.querySelector("#winAmount"),
+  winEffects: document.querySelector("#winEffects"),
+  coinLayer: document.querySelector("#coinLayer"),
+  sparkLayer: document.querySelector("#sparkLayer"),
+  bigWinCallout: document.querySelector("#bigWinCallout"),
+  bigWinTitle: document.querySelector("#bigWinTitle"),
+  bigWinAmount: document.querySelector("#bigWinAmount"),
   payList: document.querySelector("#payList"),
   rulesToggle: document.querySelector("#rulesToggle"),
   paytable: document.querySelector("#paytable"),
@@ -182,6 +188,7 @@ function setControls(disabled) {
 
 function clearWins() {
   document.querySelectorAll(".tile.win").forEach((tile) => tile.classList.remove("win"));
+  document.querySelector(".machine")?.classList.remove("celebrating", "mega-celebrating");
   const ctx = els.winCanvas.getContext("2d");
   ctx.clearRect(0, 0, els.winCanvas.width, els.winCanvas.height);
 }
@@ -257,11 +264,13 @@ function drawWinLines(wins) {
   canvas.height = Math.max(560, Math.floor(rect.height));
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.lineWidth = 6;
+  ctx.lineWidth = 7;
   ctx.lineCap = "round";
+  ctx.shadowBlur = 16;
 
   wins.slice(0, 5).forEach((win, index) => {
     ctx.strokeStyle = ["#f3c35a", "#00d6a3", "#cf263f", "#ffffff", "#83b7ff"][index % 5];
+    ctx.shadowColor = ctx.strokeStyle;
     ctx.beginPath();
     win.positions.forEach(([reel, row], pointIndex) => {
       const x = ((reel + 0.5) / 5) * canvas.width;
@@ -278,6 +287,71 @@ function showBanner(title, amount) {
   els.winAmount.textContent = amount;
   els.winBanner.classList.add("show");
   window.setTimeout(() => els.winBanner.classList.remove("show"), 1600);
+}
+
+function clearAtmosphere() {
+  els.coinLayer.innerHTML = "";
+  els.sparkLayer.innerHTML = "";
+  els.winEffects.classList.remove("burst");
+  els.bigWinCallout.classList.remove("show");
+}
+
+function triggerAtmosphere(totalWin, scatterCount = 0) {
+  clearAtmosphere();
+  const multiplier = totalWin / state.bet;
+  const tier = scatterCount >= 4 || multiplier >= 60
+    ? "MEGA WIN"
+    : multiplier >= 25
+      ? "BIG WIN"
+      : multiplier >= 8
+        ? "NICE WIN"
+        : "WIN";
+  const coinCount = tier === "MEGA WIN" ? 42 : tier === "BIG WIN" ? 28 : tier === "NICE WIN" ? 16 : 8;
+  const sparkCount = tier === "MEGA WIN" ? 34 : tier === "BIG WIN" ? 24 : 14;
+  const machine = document.querySelector(".machine");
+
+  els.winEffects.classList.remove("burst");
+  void els.winEffects.offsetWidth;
+  els.winEffects.classList.add("burst");
+  machine?.classList.add(tier === "MEGA WIN" || tier === "BIG WIN" ? "mega-celebrating" : "celebrating");
+
+  if (tier !== "WIN") {
+    els.bigWinTitle.textContent = tier;
+    els.bigWinAmount.textContent = `+${totalWin.toLocaleString("zh-Hant")}`;
+    els.bigWinCallout.classList.remove("show");
+    void els.bigWinCallout.offsetWidth;
+    els.bigWinCallout.classList.add("show");
+  }
+
+  for (let index = 0; index < coinCount; index += 1) {
+    const coin = document.createElement("span");
+    coin.className = "coin";
+    coin.style.setProperty("--x", `${Math.round(Math.random() * 100)}%`);
+    coin.style.setProperty("--size", `${18 + Math.round(Math.random() * 16)}px`);
+    coin.style.setProperty("--delay", `${Math.random() * 0.45}s`);
+    coin.style.setProperty("--duration", `${1.15 + Math.random() * 0.95}s`);
+    coin.style.setProperty("--drift", `${Math.round((Math.random() - 0.5) * 180)}px`);
+    coin.style.setProperty("--rotate", `${Math.round(360 + Math.random() * 820)}deg`);
+    els.coinLayer.append(coin);
+  }
+
+  for (let index = 0; index < sparkCount; index += 1) {
+    const spark = document.createElement("span");
+    spark.className = "spark";
+    spark.style.setProperty("--x", `${18 + Math.round(Math.random() * 64)}%`);
+    spark.style.setProperty("--y", `${22 + Math.round(Math.random() * 36)}%`);
+    spark.style.setProperty("--size", `${5 + Math.round(Math.random() * 9)}px`);
+    spark.style.setProperty("--delay", `${Math.random() * 0.28}s`);
+    spark.style.setProperty("--duration", `${0.62 + Math.random() * 0.55}s`);
+    spark.style.setProperty("--dx", `${Math.round((Math.random() - 0.5) * 220)}px`);
+    spark.style.setProperty("--dy", `${Math.round((Math.random() - 0.5) * 160)}px`);
+    els.sparkLayer.append(spark);
+  }
+
+  window.setTimeout(() => {
+    clearAtmosphere();
+    machine?.classList.remove("celebrating", "mega-celebrating");
+  }, tier === "MEGA WIN" ? 2600 : 2100);
 }
 
 function stopAuto(message) {
@@ -335,6 +409,7 @@ async function spin() {
   state.spinning = true;
   state.lastWin = 0;
   clearWins();
+  clearAtmosphere();
   setControls(true);
   els.statusText.textContent = state.turbo ? "Turbo 啟動，快速開獎..." : "轉軸加速，聽牌準備...";
   audio.play(220, 0.08, "square", 0.035);
@@ -385,6 +460,7 @@ async function spin() {
     state.balance += totalWin;
     state.bestWin = Math.max(state.bestWin, totalWin);
     animateWinMeter(totalWin);
+    triggerAtmosphere(totalWin, scatter.count);
     const bestLine = lineWins.sort((a, b) => b.amount - a.amount)[0];
     const title = scatter.amount > 0
       ? `發財 Scatter x${scatter.count}`
