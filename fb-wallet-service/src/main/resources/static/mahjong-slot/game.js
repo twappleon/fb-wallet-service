@@ -1,18 +1,21 @@
 const symbols = [
-  { id: "wan", tile: "萬", name: "萬子", color: "red", pays: [0, 0, 8, 25, 80] },
-  { id: "tong", tile: "筒", name: "筒子", color: "green", pays: [0, 0, 7, 20, 70] },
-  { id: "suo", tile: "索", name: "索子", color: "green", pays: [0, 0, 6, 18, 60] },
+  { id: "wan", tile: "萬", name: "萬子", color: "red", art: "wan", pays: [0, 0, 8, 25, 80] },
+  { id: "tong", tile: "筒", name: "筒子", color: "green", art: "tong", pays: [0, 0, 7, 20, 70] },
+  { id: "suo", tile: "索", name: "索子", color: "green", art: "suo", pays: [0, 0, 6, 18, 60] },
   { id: "dong", tile: "東", name: "東風", color: "", pays: [0, 0, 5, 15, 45] },
   { id: "nan", tile: "南", name: "南風", color: "", pays: [0, 0, 5, 15, 45] },
+  { id: "xi", tile: "西", name: "西風", color: "", pays: [0, 0, 5, 15, 45] },
+  { id: "bei", tile: "北", name: "北風", color: "", pays: [0, 0, 5, 15, 45] },
   { id: "zhong", tile: "中", name: "紅中", color: "red", pays: [0, 0, 10, 35, 100] },
   { id: "fa", tile: "發", name: "發財", color: "green", scatter: true, pays: [0, 0, 3, 12, 40] },
-  { id: "wild", tile: "花", name: "花牌 Wild", color: "gold", wild: true, pays: [0, 0, 0, 0, 0] }
+  { id: "bai", tile: "白", name: "白板", color: "", pays: [0, 0, 9, 30, 90] },
+  { id: "wild", tile: "花", name: "花牌 Wild", color: "gold", art: "flower", wild: true, pays: [0, 0, 0, 0, 0] }
 ];
 
 const strip = [
-  "wan", "tong", "suo", "dong", "nan", "zhong", "fa",
+  "wan", "tong", "suo", "dong", "nan", "xi", "bei", "zhong", "fa", "bai",
   "wan", "tong", "suo", "dong", "nan", "zhong",
-  "wild", "wan", "tong", "suo", "fa", "dong", "nan"
+  "wild", "wan", "tong", "suo", "fa", "xi", "bei", "bai"
 ];
 
 const lines = [
@@ -184,13 +187,46 @@ function weightedPick() {
   return symbolById(strip[index]);
 }
 
+function renderTileFace(symbol, compact = false) {
+  if (symbol.art === "wan") {
+    return `
+      <span class="tile-art wan-art ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+        <span class="wan-rank">伍</span>
+        <span class="wan-mark">萬</span>
+      </span>
+    `;
+  }
+  if (symbol.art === "tong") {
+    return `
+      <span class="tile-art dot-art ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+        <i></i><i></i><i></i><i></i><i></i>
+      </span>
+    `;
+  }
+  if (symbol.art === "suo") {
+    return `
+      <span class="tile-art bamboo-art ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+        <i></i><i></i><i></i><i></i><i></i>
+      </span>
+    `;
+  }
+  if (symbol.art === "flower") {
+    return `
+      <span class="tile-art flower-art ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+        <i></i><i></i><i></i><span>花</span>
+      </span>
+    `;
+  }
+  return `<span>${symbol.tile}</span>`;
+}
+
 function createTile(symbol, reelIndex, rowIndex) {
   const tile = document.createElement("div");
-  tile.className = `tile ${symbol.color} ${symbol.wild ? "wild" : ""} ${symbol.scatter ? "scatter" : ""}`;
+  tile.className = `tile ${symbol.color} ${symbol.art ? "graphic" : ""} ${symbol.wild ? "wild" : ""} ${symbol.scatter ? "scatter" : ""}`;
   tile.dataset.id = symbol.id;
   tile.dataset.reel = reelIndex;
   tile.dataset.row = rowIndex;
-  tile.innerHTML = `<span>${symbol.tile}</span>`;
+  tile.innerHTML = renderTileFace(symbol);
   return tile;
 }
 
@@ -201,7 +237,7 @@ function renderPaytable() {
       const type = symbol.scatter ? "Scatter" : "連線";
       return `
         <div class="pay-row">
-          <div class="pay-symbol">${symbol.tile}</div>
+          <div class="pay-symbol ${symbol.art ? "graphic" : ""}">${renderTileFace(symbol, true)}</div>
           <div>
             <strong>${symbol.name}</strong>
             <span>${type} 3/4/5：${symbol.pays[2]}x / ${symbol.pays[3]}x / ${symbol.pays[4]}x</span>
