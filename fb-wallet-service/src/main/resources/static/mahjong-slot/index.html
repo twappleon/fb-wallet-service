@@ -19,7 +19,7 @@
             </div>
           </div>
           <div class="jackpot-sign" aria-live="polite">
-            <span>GRAND</span>
+            <span>PROGRESSIVE GRAND</span>
             <strong id="grandJackpot">88,888</strong>
           </div>
           <div class="top-actions">
@@ -34,16 +34,20 @@
 
         <div class="jackpot-row" aria-live="polite">
           <div>
-            <span>SPINS</span>
+            <span>MAJOR</span>
+            <strong id="majorJackpot">18,880</strong>
+          </div>
+          <div>
+            <span>MINOR</span>
+            <strong id="minorJackpot">3,880</strong>
+          </div>
+          <div>
+            <span>MINI</span>
+            <strong id="miniJackpot">888</strong>
+          </div>
+          <div>
+            <span>ROUND</span>
             <strong id="roundCount">0</strong>
-          </div>
-          <div>
-            <span>BEST WIN</span>
-            <strong id="bestWin">0</strong>
-          </div>
-          <div>
-            <span>FREE SPINS</span>
-            <strong id="freeSpins">0</strong>
           </div>
         </div>
 
@@ -61,14 +65,22 @@
         </section>
 
         <section class="controls" aria-label="遊戲控制">
+          <div class="meter win-meter">
+            <span>WIN</span>
+            <strong id="winMeter">0</strong>
+          </div>
           <div class="meter">
             <span>CREDITS</span>
             <strong id="balance">5000</strong>
           </div>
+          <div class="meter compact-meter">
+            <span>LINES</span>
+            <strong id="lineCount">9</strong>
+          </div>
           <div class="bet-control">
             <button class="step-button" id="betDown" type="button" aria-label="減少下注">−</button>
             <label>
-              <span>BET</span>
+              <span>TOTAL BET</span>
               <input id="betInput" type="number" min="10" max="500" step="10" value="50" />
             </label>
             <button class="step-button" id="betUp" type="button" aria-label="增加下注">+</button>
@@ -77,17 +89,23 @@
             <span class="spin-label">開始</span>
             <span class="spin-sub">SPIN</span>
           </button>
-          <button class="auto-button" id="autoButton" type="button">自動</button>
+          <button class="auto-button utility-button" id="maxBetButton" type="button">MAX</button>
+          <button class="auto-button utility-button" id="turboButton" type="button">TURBO</button>
+          <button class="auto-button" id="autoButton" type="button">AUTO</button>
         </section>
 
         <section class="status-strip" aria-live="polite">
-          <span id="statusText">湊齊三張以上同牌即可胡牌，花牌可代替任意普通牌。</span>
+          <span id="statusText">連線三張以上同牌即可胡牌，花牌可代替任意普通牌。</span>
+          <span class="session-meta">DEMO MODE · RTP 96.2% · VOLATILITY HIGH</span>
         </section>
       </section>
 
       <aside class="paytable" id="paytable" aria-label="賠付表">
         <div class="panel-heading">
-          <h2>賠付表</h2>
+          <div>
+            <h2>賠付表</h2>
+            <span>9 Lines · 5 Reels · Wild / Scatter</span>
+          </div>
           <button class="icon-button close-rules" id="closeRules" type="button" aria-label="關閉賠付表">×</button>
         </div>
         <div class="pay-list" id="payList"></div>

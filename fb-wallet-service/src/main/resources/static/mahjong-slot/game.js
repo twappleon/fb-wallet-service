@@ -30,11 +30,19 @@ const lines = [
 const state = {
   balance: 5000,
   bet: 50,
+  lastWin: 0,
+  jackpots: {
+    grand: 88888,
+    major: 18880,
+    minor: 3880,
+    mini: 888
+  },
   round: 0,
   bestWin: 0,
   freeSpins: 0,
   spinning: false,
   auto: false,
+  turbo: false,
   sound: true,
   grid: []
 };
@@ -42,13 +50,19 @@ const state = {
 const els = {
   reels: document.querySelector("#reels"),
   balance: document.querySelector("#balance"),
+  winMeter: document.querySelector("#winMeter"),
   betInput: document.querySelector("#betInput"),
   betDown: document.querySelector("#betDown"),
   betUp: document.querySelector("#betUp"),
+  maxBetButton: document.querySelector("#maxBetButton"),
+  turboButton: document.querySelector("#turboButton"),
   spinButton: document.querySelector("#spinButton"),
   autoButton: document.querySelector("#autoButton"),
   roundCount: document.querySelector("#roundCount"),
-  bestWin: document.querySelector("#bestWin"),
+  grandJackpot: document.querySelector("#grandJackpot"),
+  majorJackpot: document.querySelector("#majorJackpot"),
+  minorJackpot: document.querySelector("#minorJackpot"),
+  miniJackpot: document.querySelector("#miniJackpot"),
   freeSpins: document.querySelector("#freeSpins"),
   statusText: document.querySelector("#statusText"),
   winBanner: document.querySelector("#winBanner"),
@@ -133,11 +147,15 @@ function renderGrid() {
 
 function updateStats() {
   els.balance.textContent = state.balance.toLocaleString("zh-Hant");
+  els.winMeter.textContent = state.lastWin.toLocaleString("zh-Hant");
   els.roundCount.textContent = String(state.round);
-  els.bestWin.textContent = state.bestWin.toLocaleString("zh-Hant");
-  els.freeSpins.textContent = String(state.freeSpins);
+  els.grandJackpot.textContent = Math.floor(state.jackpots.grand).toLocaleString("zh-Hant");
+  els.majorJackpot.textContent = Math.floor(state.jackpots.major).toLocaleString("zh-Hant");
+  els.minorJackpot.textContent = Math.floor(state.jackpots.minor).toLocaleString("zh-Hant");
+  els.miniJackpot.textContent = Math.floor(state.jackpots.mini).toLocaleString("zh-Hant");
   els.betInput.value = state.bet;
   els.autoButton.classList.toggle("active", state.auto);
+  els.turboButton.classList.toggle("active", state.turbo);
   els.soundIcon.textContent = state.sound ? "♪" : "×";
 }
 
@@ -145,6 +163,7 @@ function setControls(disabled) {
   els.spinButton.disabled = disabled;
   els.betDown.disabled = disabled || state.freeSpins > 0;
   els.betUp.disabled = disabled || state.freeSpins > 0;
+  els.maxBetButton.disabled = disabled || state.freeSpins > 0;
   els.betInput.disabled = disabled || state.freeSpins > 0;
 }
 
@@ -156,6 +175,14 @@ function clearWins() {
 
 function randomizeGrid() {
   state.grid = Array.from({ length: 5 }, () => Array.from({ length: 3 }, weightedPick));
+}
+
+function updateJackpots() {
+  const contribution = state.bet * 0.018;
+  state.jackpots.grand += contribution;
+  state.jackpots.major += contribution * 0.42;
+  state.jackpots.minor += contribution * 0.18;
+  state.jackpots.mini += contribution * 0.06;
 }
 
 function evaluateLines() {
@@ -240,6 +267,22 @@ function showBanner(title, amount) {
   window.setTimeout(() => els.winBanner.classList.remove("show"), 1600);
 }
 
+function animateWinMeter(amount) {
+  const start = 0;
+  const duration = state.turbo ? 260 : 720;
+  const startedAt = performance.now();
+
+  function tick(now) {
+    const progress = Math.min(1, (now - startedAt) / duration);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    state.lastWin = Math.round(start + amount * eased);
+    els.winMeter.textContent = state.lastWin.toLocaleString("zh-Hant");
+    if (progress < 1) window.requestAnimationFrame(tick);
+  }
+
+  window.requestAnimationFrame(tick);
+}
+
 async function spin() {
   if (state.spinning) return;
   if (state.balance < state.bet && state.freeSpins === 0) {
@@ -250,9 +293,10 @@ async function spin() {
   }
 
   state.spinning = true;
+  state.lastWin = 0;
   clearWins();
   setControls(true);
-  els.statusText.textContent = "洗牌中，聽牌準備...";
+  els.statusText.textContent = state.turbo ? "Turbo 啟動，快速開獎..." : "轉軸加速，聽牌準備...";
   audio.play(220, 0.08, "square", 0.035);
 
   const isFreeSpin = state.freeSpins > 0;
@@ -260,24 +304,32 @@ async function spin() {
     state.freeSpins -= 1;
   } else {
     state.balance -= state.bet;
+    updateJackpots();
   }
   state.round += 1;
   updateStats();
 
   const reelElements = [...document.querySelectorAll(".reel")];
-  reelElements.forEach((reel) => reel.classList.add("spinning"));
+  reelElements.forEach((reel) => {
+    reel.classList.remove("settled");
+    reel.classList.add("spinning");
+  });
+
+  const baseDelay = state.turbo ? 85 : 210;
+  const staggerDelay = state.turbo ? 52 : 120;
 
   for (let reel = 0; reel < 5; reel += 1) {
-    await wait(210 + reel * 120);
+    await wait(baseDelay + reel * staggerDelay);
     state.grid[reel] = Array.from({ length: 3 }, weightedPick);
     renderGrid();
     [...document.querySelectorAll(".reel")].forEach((el, index) => {
       if (index > reel) el.classList.add("spinning");
+      if (index === reel) el.classList.add("settled");
     });
     audio.play(300 + reel * 45, 0.045, "triangle", 0.035);
   }
 
-  await wait(160);
+  await wait(state.turbo ? 70 : 160);
   const lineWins = evaluateLines();
   const scatter = evaluateScatters();
   const totalWin = lineWins.reduce((sum, win) => sum + win.amount, 0) + scatter.amount;
@@ -292,6 +344,7 @@ async function spin() {
   if (totalWin > 0) {
     state.balance += totalWin;
     state.bestWin = Math.max(state.bestWin, totalWin);
+    animateWinMeter(totalWin);
     const bestLine = lineWins.sort((a, b) => b.amount - a.amount)[0];
     const title = scatter.amount > 0
       ? `發財 Scatter x${scatter.count}`
@@ -304,6 +357,7 @@ async function spin() {
     await wait(80);
     audio.play(880, 0.12, "sine", 0.045);
   } else {
+    state.lastWin = 0;
     els.statusText.textContent = "本局未胡，下一手可能就摸到好牌。";
     audio.play(150, 0.08, "sawtooth", 0.025);
   }
@@ -313,7 +367,7 @@ async function spin() {
   setControls(false);
 
   if (state.auto && (state.balance >= state.bet || state.freeSpins > 0)) {
-    window.setTimeout(spin, 900);
+    window.setTimeout(spin, state.turbo ? 380 : 900);
   } else if (state.auto) {
     state.auto = false;
     updateStats();
@@ -337,6 +391,15 @@ function bindEvents() {
   els.betInput.addEventListener("change", () => {
     const value = Number(els.betInput.value || 50);
     state.bet = Math.min(500, Math.max(10, Math.round(value / 10) * 10));
+    updateStats();
+  });
+  els.maxBetButton.addEventListener("click", () => {
+    if (state.spinning || state.freeSpins > 0) return;
+    state.bet = 500;
+    updateStats();
+  });
+  els.turboButton.addEventListener("click", () => {
+    state.turbo = !state.turbo;
     updateStats();
   });
   els.autoButton.addEventListener("click", () => {
