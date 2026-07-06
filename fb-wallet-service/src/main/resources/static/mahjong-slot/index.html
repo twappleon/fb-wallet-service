@@ -91,7 +91,19 @@
           </button>
           <button class="auto-button utility-button" id="maxBetButton" type="button">MAX</button>
           <button class="auto-button utility-button" id="turboButton" type="button">TURBO</button>
-          <button class="auto-button" id="autoButton" type="button">AUTO</button>
+          <div class="auto-control">
+            <button class="auto-button" id="autoButton" type="button" aria-expanded="false" aria-controls="autoSpinPanel">
+              <span id="autoLabel">AUTO</span>
+              <span id="autoCount">選擇</span>
+            </button>
+            <div class="auto-spin-panel" id="autoSpinPanel" aria-label="自動旋轉次數">
+              <button type="button" data-auto-spins="10">10</button>
+              <button type="button" data-auto-spins="25">25</button>
+              <button type="button" data-auto-spins="50">50</button>
+              <button type="button" data-auto-spins="100">100</button>
+              <button type="button" data-auto-spins="infinite">∞</button>
+            </div>
+          </div>
         </section>
 
         <section class="status-strip" aria-live="polite">

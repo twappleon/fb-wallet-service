@@ -42,6 +42,9 @@ const state = {
   freeSpins: 0,
   spinning: false,
   auto: false,
+  autoRemaining: 0,
+  autoMenuOpen: false,
+  autoTimer: null,
   turbo: false,
   sound: true,
   grid: []
@@ -58,6 +61,10 @@ const els = {
   turboButton: document.querySelector("#turboButton"),
   spinButton: document.querySelector("#spinButton"),
   autoButton: document.querySelector("#autoButton"),
+  autoLabel: document.querySelector("#autoLabel"),
+  autoCount: document.querySelector("#autoCount"),
+  autoControl: document.querySelector(".auto-control"),
+  autoSpinPanel: document.querySelector("#autoSpinPanel"),
   roundCount: document.querySelector("#roundCount"),
   grandJackpot: document.querySelector("#grandJackpot"),
   majorJackpot: document.querySelector("#majorJackpot"),
@@ -155,6 +162,12 @@ function updateStats() {
   els.miniJackpot.textContent = Math.floor(state.jackpots.mini).toLocaleString("zh-Hant");
   els.betInput.value = state.bet;
   els.autoButton.classList.toggle("active", state.auto);
+  els.autoControl.classList.toggle("open", state.autoMenuOpen);
+  els.autoButton.setAttribute("aria-expanded", String(state.autoMenuOpen));
+  els.autoLabel.textContent = state.auto ? "STOP" : "AUTO";
+  els.autoCount.textContent = state.auto
+    ? state.autoRemaining === Infinity ? "∞" : String(state.autoRemaining)
+    : "選擇";
   els.turboButton.classList.toggle("active", state.turbo);
   els.soundIcon.textContent = state.sound ? "♪" : "×";
 }
@@ -267,6 +280,34 @@ function showBanner(title, amount) {
   window.setTimeout(() => els.winBanner.classList.remove("show"), 1600);
 }
 
+function stopAuto(message) {
+  if (state.autoTimer) {
+    window.clearTimeout(state.autoTimer);
+    state.autoTimer = null;
+  }
+  state.auto = false;
+  state.autoRemaining = 0;
+  state.autoMenuOpen = false;
+  if (message) els.statusText.textContent = message;
+  updateStats();
+}
+
+function startAuto(spins) {
+  if (state.spinning) return;
+  state.auto = true;
+  state.autoRemaining = spins;
+  state.autoMenuOpen = false;
+  if (state.autoTimer) {
+    window.clearTimeout(state.autoTimer);
+    state.autoTimer = null;
+  }
+  els.statusText.textContent = spins === Infinity
+    ? "自動旋轉啟動：無限模式。"
+    : `自動旋轉啟動：剩餘 ${spins} 次。`;
+  updateStats();
+  spin();
+}
+
 function animateWinMeter(amount) {
   const start = 0;
   const duration = state.turbo ? 260 : 720;
@@ -287,8 +328,7 @@ async function spin() {
   if (state.spinning) return;
   if (state.balance < state.bet && state.freeSpins === 0) {
     els.statusText.textContent = "餘額不足，請降低下注或重新整理重置 demo。";
-    state.auto = false;
-    updateStats();
+    stopAuto();
     return;
   }
 
@@ -363,14 +403,23 @@ async function spin() {
   }
 
   state.spinning = false;
+
+  if (state.auto && !isFreeSpin && state.autoRemaining !== Infinity) {
+    state.autoRemaining = Math.max(0, state.autoRemaining - 1);
+  }
+
   updateStats();
   setControls(false);
 
-  if (state.auto && (state.balance >= state.bet || state.freeSpins > 0)) {
-    window.setTimeout(spin, state.turbo ? 380 : 900);
+  if (state.auto && state.autoRemaining === 0 && state.freeSpins === 0) {
+    stopAuto("自動旋轉已完成。");
+  } else if (state.auto && (state.balance >= state.bet || state.freeSpins > 0)) {
+    state.autoTimer = window.setTimeout(() => {
+      state.autoTimer = null;
+      if (state.auto) spin();
+    }, state.turbo ? 380 : 900);
   } else if (state.auto) {
-    state.auto = false;
-    updateStats();
+    stopAuto("自動旋轉停止：餘額不足。");
   }
 }
 
@@ -403,9 +452,19 @@ function bindEvents() {
     updateStats();
   });
   els.autoButton.addEventListener("click", () => {
-    state.auto = !state.auto;
+    if (state.auto) {
+      stopAuto("自動旋轉已停止。");
+      return;
+    }
+    if (state.spinning) return;
+    state.autoMenuOpen = !state.autoMenuOpen;
     updateStats();
-    if (state.auto && !state.spinning) spin();
+  });
+  els.autoSpinPanel.querySelectorAll("[data-auto-spins]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const value = button.dataset.autoSpins;
+      startAuto(value === "infinite" ? Infinity : Number(value));
+    });
   });
   els.rulesToggle.addEventListener("click", () => els.paytable.classList.add("open"));
   els.closeRules.addEventListener("click", () => els.paytable.classList.remove("open"));
