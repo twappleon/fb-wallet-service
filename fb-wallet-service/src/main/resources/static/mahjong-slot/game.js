@@ -106,6 +106,62 @@ const audio = {
     oscillator.start();
     oscillator.stop(this.context.currentTime + duration);
   },
+  playAt(frequency, startAt, duration = 0.08, type = "sine", gain = 0.05) {
+    if (!state.sound) return;
+    this.context ||= new AudioContext();
+    const oscillator = this.context.createOscillator();
+    const volume = this.context.createGain();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, startAt);
+    volume.gain.setValueAtTime(gain, startAt);
+    volume.gain.exponentialRampToValueAtTime(0.001, startAt + duration);
+    oscillator.connect(volume);
+    volume.connect(this.context.destination);
+    oscillator.start(startAt);
+    oscillator.stop(startAt + duration);
+  },
+  sweep(startFrequency, endFrequency, duration = 0.28, type = "sawtooth", gain = 0.024) {
+    if (!state.sound) return;
+    this.context ||= new AudioContext();
+    const now = this.context.currentTime;
+    const oscillator = this.context.createOscillator();
+    const volume = this.context.createGain();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(startFrequency, now);
+    oscillator.frequency.exponentialRampToValueAtTime(endFrequency, now + duration);
+    volume.gain.setValueAtTime(gain, now);
+    volume.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    oscillator.connect(volume);
+    volume.connect(this.context.destination);
+    oscillator.start(now);
+    oscillator.stop(now + duration);
+  },
+  chord(notes, duration = 0.18, type = "triangle", gain = 0.026, delay = 0) {
+    if (!state.sound) return;
+    this.context ||= new AudioContext();
+    const startAt = this.context.currentTime + delay;
+    notes.forEach((note, index) => this.playAt(note, startAt + index * 0.018, duration, type, gain));
+  },
+  spinStart() {
+    this.sweep(150, 620, state.turbo ? 0.16 : 0.34, "sawtooth", 0.018);
+    this.chord([196, 247, 294], 0.12, "square", 0.012, 0.03);
+  },
+  reelStop(index) {
+    const base = 260 + index * 38;
+    this.play(base, 0.045, "triangle", 0.032);
+    this.play(base / 2, 0.055, "square", 0.012);
+  },
+  winFanfare(multiplier = 1, scatterCount = 0) {
+    const strong = multiplier >= 25 || scatterCount >= 4;
+    const notes = strong ? [523, 659, 784, 1047] : [440, 554, 659];
+    this.chord(notes, strong ? 0.28 : 0.2, "triangle", strong ? 0.038 : 0.028);
+    window.setTimeout(() => this.chord(notes.map((note) => note * 1.5), 0.24, "sine", strong ? 0.026 : 0.018), 160);
+    if (strong) window.setTimeout(() => this.sweep(720, 1640, 0.42, "triangle", 0.022), 330);
+  },
+  loseThud() {
+    this.sweep(180, 95, 0.18, "sawtooth", 0.018);
+    this.play(120, 0.08, "square", 0.012);
+  },
   coinDrop(count = 8, interval = 58) {
     if (!state.sound) return;
     const notes = [988, 1175, 1319, 1480, 1760];
@@ -435,7 +491,7 @@ async function spin() {
   clearAtmosphere();
   setControls(true);
   els.statusText.textContent = state.turbo ? "Turbo 啟動，快速開獎..." : "轉軸加速，聽牌準備...";
-  audio.play(220, 0.08, "square", 0.035);
+  audio.spinStart();
 
   const isFreeSpin = state.freeSpins > 0;
   if (isFreeSpin) {
@@ -464,7 +520,7 @@ async function spin() {
       if (index > reel) el.classList.add("spinning");
       if (index === reel) el.classList.add("settled");
     });
-    audio.play(300 + reel * 45, 0.045, "triangle", 0.035);
+    audio.reelStop(reel);
   }
 
   await wait(state.turbo ? 70 : 160);
@@ -484,6 +540,7 @@ async function spin() {
     state.bestWin = Math.max(state.bestWin, totalWin);
     animateWinMeter(totalWin);
     triggerAtmosphere(totalWin, scatter.count);
+    audio.winFanfare(totalWin / state.bet, scatter.count);
     const bestLine = lineWins.sort((a, b) => b.amount - a.amount)[0];
     const title = scatter.amount > 0
       ? `發財 Scatter x${scatter.count}`
@@ -498,7 +555,7 @@ async function spin() {
   } else {
     state.lastWin = 0;
     els.statusText.textContent = "本局未胡，下一手可能就摸到好牌。";
-    audio.play(150, 0.08, "sawtooth", 0.025);
+    audio.loseThud();
   }
 
   state.spinning = false;
