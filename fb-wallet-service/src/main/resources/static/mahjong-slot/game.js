@@ -4,7 +4,6 @@ const suitPayMultipliers = {
   tong: [0, 0, 5, 16, 55],
   tiao: [0, 0, 5, 16, 55]
 };
-const mahjongGlyph = (baseCodePoint, rank) => String.fromCodePoint(baseCodePoint + rank - 1);
 const fourCopies = (tile) => Array.from({ length: 4 }, () => tile.id);
 const suitSymbols = [
   ...Array.from({ length: 9 }, (_, index) => {
@@ -27,7 +26,6 @@ const suitSymbols = [
       rank,
       name: `${rankNames[rank]}筒`,
       color: "green",
-      glyph: mahjongGlyph(0x1f019, rank),
       art: "tong",
       pays: suitPayMultipliers.tong
     };
@@ -40,7 +38,6 @@ const suitSymbols = [
       rank,
       name: `${rankNames[rank]}條`,
       color: "green",
-      glyph: mahjongGlyph(0x1f010, rank),
       art: "tiao",
       pays: suitPayMultipliers.tiao
     };
@@ -270,6 +267,83 @@ function renderRankMarks(rank, className) {
     .join("");
 }
 
+function svgCircle(cx, cy, radius, color, inner = "#fffdf6") {
+  return `
+    <g class="pip-circle">
+      <circle cx="${cx}" cy="${cy}" r="${radius}" fill="${inner}" stroke="${color}" stroke-width="5" />
+      <circle cx="${cx}" cy="${cy}" r="${Math.max(3, radius * 0.34)}" fill="${color}" />
+      <circle cx="${cx}" cy="${cy}" r="${Math.max(7, radius * 0.62)}" fill="none" stroke="${color}" stroke-width="2" opacity="0.8" />
+    </g>
+  `;
+}
+
+function renderCircleTile(rank) {
+  const colors = {
+    red: "#c51f37",
+    green: "#00856b",
+    blue: "#2369b1"
+  };
+  const layouts = {
+    1: [{ x: 50, y: 60, r: 24, c: colors.green, inner: "#fff8e8" }],
+    2: [{ x: 35, y: 38, r: 13, c: colors.green }, { x: 65, y: 82, r: 13, c: colors.blue }],
+    3: [{ x: 32, y: 34, r: 12, c: colors.green }, { x: 50, y: 60, r: 12, c: colors.red }, { x: 68, y: 86, r: 12, c: colors.blue }],
+    4: [{ x: 34, y: 35, r: 12, c: colors.blue }, { x: 66, y: 35, r: 12, c: colors.green }, { x: 34, y: 85, r: 12, c: colors.green }, { x: 66, y: 85, r: 12, c: colors.blue }],
+    5: [{ x: 34, y: 35, r: 11, c: colors.blue }, { x: 66, y: 35, r: 11, c: colors.green }, { x: 50, y: 60, r: 11, c: colors.red }, { x: 34, y: 85, r: 11, c: colors.green }, { x: 66, y: 85, r: 11, c: colors.blue }],
+    6: [{ x: 34, y: 30, r: 10, c: colors.green }, { x: 66, y: 30, r: 10, c: colors.green }, { x: 34, y: 56, r: 10, c: colors.red }, { x: 66, y: 56, r: 10, c: colors.red }, { x: 34, y: 84, r: 10, c: colors.red }, { x: 66, y: 84, r: 10, c: colors.red }],
+    7: [{ x: 31, y: 27, r: 9, c: colors.green }, { x: 50, y: 42, r: 9, c: colors.green }, { x: 69, y: 57, r: 9, c: colors.green }, { x: 31, y: 70, r: 9, c: colors.red }, { x: 50, y: 84, r: 9, c: colors.red }, { x: 69, y: 98, r: 9, c: colors.red }, { x: 31, y: 98, r: 9, c: colors.red }],
+    8: [{ x: 34, y: 24, r: 9, c: colors.blue }, { x: 66, y: 24, r: 9, c: colors.blue }, { x: 34, y: 48, r: 9, c: colors.green }, { x: 66, y: 48, r: 9, c: colors.green }, { x: 34, y: 72, r: 9, c: colors.blue }, { x: 66, y: 72, r: 9, c: colors.blue }, { x: 34, y: 96, r: 9, c: colors.green }, { x: 66, y: 96, r: 9, c: colors.green }],
+    9: [{ x: 30, y: 28, r: 8, c: colors.green }, { x: 50, y: 28, r: 8, c: colors.green }, { x: 70, y: 28, r: 8, c: colors.green }, { x: 30, y: 60, r: 8, c: colors.red }, { x: 50, y: 60, r: 8, c: colors.red }, { x: 70, y: 60, r: 8, c: colors.red }, { x: 30, y: 92, r: 8, c: colors.blue }, { x: 50, y: 92, r: 8, c: colors.blue }, { x: 70, y: 92, r: 8, c: colors.blue }]
+  };
+  return `
+    <svg class="tile-svg circle-svg" viewBox="0 0 100 120" aria-hidden="true">
+      ${layouts[rank].map((pip) => svgCircle(pip.x, pip.y, pip.r, pip.c, pip.inner)).join("")}
+    </svg>
+  `;
+}
+
+function bambooStick(x, y, height = 34, color = "#0f7a55", rotate = 0) {
+  return `
+    <g transform="translate(${x} ${y}) rotate(${rotate})">
+      <rect x="-5" y="${-height / 2}" width="10" height="${height}" rx="5" fill="${color}" />
+      <path d="M-5 ${-height * 0.18} H5 M-5 ${height * 0.18} H5" stroke="#f7fff9" stroke-width="2" />
+      <path d="M-2 ${-height * 0.44} C2 ${-height * 0.22} 2 ${height * 0.22} -2 ${height * 0.44}" stroke="rgba(255,255,255,0.42)" stroke-width="1.5" fill="none" />
+    </g>
+  `;
+}
+
+function renderOneBamboo() {
+  return `
+    <svg class="tile-svg bamboo-svg bird-svg" viewBox="0 0 100 120" aria-hidden="true">
+      <path d="M18 68 C24 34 44 18 72 18 C62 30 58 44 62 62 C48 54 33 58 18 68Z" fill="#0f7a55" />
+      <path d="M16 70 C38 62 56 60 78 88 C54 86 31 82 16 70Z" fill="#168d62" />
+      <path d="M28 68 C38 50 52 43 70 43 C62 54 61 68 68 82 C51 75 40 70 28 68Z" fill="#c51f37" />
+      <circle cx="71" cy="33" r="14" fill="#10906a" />
+      <circle cx="76" cy="31" r="2.6" fill="#14100d" />
+      <path d="M83 36 L96 42 L82 47Z" fill="#c51f37" />
+      <path d="M48 88 L43 101 M59 90 L62 102" stroke="#815000" stroke-width="4" stroke-linecap="round" />
+    </svg>
+  `;
+}
+
+function renderBambooTile(rank) {
+  if (rank === 1) return renderOneBamboo();
+  const layouts = {
+    2: [[39, 42, 36, "#0f7a55", -18], [61, 78, 36, "#c51f37", 18]],
+    3: [[35, 35, 32, "#0f7a55", -16], [50, 60, 34, "#c51f37", 0], [65, 85, 32, "#0f7a55", 16]],
+    4: [[35, 34, 30, "#0f7a55", -14], [65, 34, 30, "#c51f37", 14], [35, 86, 30, "#c51f37", 14], [65, 86, 30, "#0f7a55", -14]],
+    5: [[35, 32, 28, "#0f7a55", -12], [65, 32, 28, "#c51f37", 12], [50, 60, 30, "#0f7a55", 0], [35, 88, 28, "#c51f37", 12], [65, 88, 28, "#0f7a55", -12]],
+    6: [[35, 28, 26, "#0f7a55", -10], [65, 28, 26, "#0f7a55", 10], [35, 60, 26, "#c51f37", -10], [65, 60, 26, "#c51f37", 10], [35, 92, 26, "#0f7a55", -10], [65, 92, 26, "#0f7a55", 10]],
+    7: [[30, 26, 23, "#0f7a55", -10], [50, 26, 23, "#0f7a55", 0], [70, 26, 23, "#0f7a55", 10], [38, 58, 24, "#c51f37", -8], [62, 58, 24, "#c51f37", 8], [38, 92, 24, "#0f7a55", -8], [62, 92, 24, "#0f7a55", 8]],
+    8: [[35, 24, 22, "#0f7a55", -8], [65, 24, 22, "#0f7a55", 8], [35, 48, 22, "#c51f37", -8], [65, 48, 22, "#c51f37", 8], [35, 72, 22, "#0f7a55", -8], [65, 72, 22, "#0f7a55", 8], [35, 96, 22, "#c51f37", -8], [65, 96, 22, "#c51f37", 8]],
+    9: [[28, 28, 21, "#0f7a55", -8], [50, 28, 21, "#0f7a55", 0], [72, 28, 21, "#0f7a55", 8], [28, 60, 21, "#c51f37", -8], [50, 60, 21, "#c51f37", 0], [72, 60, 21, "#c51f37", 8], [28, 92, 21, "#0f7a55", -8], [50, 92, 21, "#0f7a55", 0], [72, 92, 21, "#0f7a55", 8]]
+  };
+  return `
+    <svg class="tile-svg bamboo-svg" viewBox="0 0 100 120" aria-hidden="true">
+      ${layouts[rank].map(([x, y, height, color, rotate]) => bambooStick(x, y, height, color, rotate)).join("")}
+    </svg>
+  `;
+}
+
 function renderTileFace(symbol, compact = false) {
   if (symbol.art === "wan") {
     return `
@@ -281,15 +355,15 @@ function renderTileFace(symbol, compact = false) {
   }
   if (symbol.art === "tong") {
     return `
-      <span class="tile-art unicode-tile-art dot-art rank-${symbol.rank} ${compact ? "compact" : ""}" aria-label="${symbol.name}">
-        <span class="mahjong-glyph">${symbol.glyph}</span>
+      <span class="tile-art svg-tile-art dot-art rank-${symbol.rank} ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+        ${renderCircleTile(symbol.rank)}
       </span>
     `;
   }
   if (symbol.art === "tiao") {
     return `
-      <span class="tile-art unicode-tile-art bamboo-art rank-${symbol.rank} ${compact ? "compact" : ""}" aria-label="${symbol.name}">
-        <span class="mahjong-glyph">${symbol.glyph}</span>
+      <span class="tile-art svg-tile-art bamboo-art rank-${symbol.rank} ${compact ? "compact" : ""}" aria-label="${symbol.name}">
+        ${renderBambooTile(symbol.rank)}
       </span>
     `;
   }
