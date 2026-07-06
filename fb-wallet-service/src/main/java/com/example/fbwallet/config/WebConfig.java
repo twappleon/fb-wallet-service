@@ -4,11 +4,13 @@ import org.springframework.boot.web.client.RestClientCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.example.fbwallet.security.CallbackSecurityFilter;
 
 @Configuration
-public class WebConfig {
+public class WebConfig implements WebMvcConfigurer {
 
     @Bean
     RestClient fbRestClient(FbProperties properties, RestClient.Builder builder) {
@@ -23,5 +25,11 @@ public class WebConfig {
     @Bean
     CallbackSecurityFilter callbackSecurityFilter(FbProperties properties) {
         return new CallbackSecurityFilter(properties);
+    }
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/mahjong-slot").setViewName("forward:/mahjong-slot/index.html");
+        registry.addViewController("/mahjong-slot/").setViewName("forward:/mahjong-slot/index.html");
     }
 }

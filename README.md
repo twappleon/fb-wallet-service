@@ -23,6 +23,7 @@ FB 体育免转钱包后端服务，基于 Spring Boot 和 Redis 实现。项目
 - 提前结算同步：`POST /fb/callback/sync_cashout`
 - 服务健康检查：`POST /fb/callback/health`
 - 内部主动拉单：`POST /internal/fb/pull/orders`
+- 麻将 slot demo：`GET /mahjong-slot/`
 
 ## 技术栈
 
@@ -55,6 +56,12 @@ FB callback 健康检查：
 curl -X POST http://localhost:8080/fb/callback/health \
   -H 'Content-Type: application/json' \
   -d '{}'
+```
+
+麻将 slot demo：
+
+```text
+http://localhost:8080/mahjong-slot/
 ```
 
 ## 构建与测试
