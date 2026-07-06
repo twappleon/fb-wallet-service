@@ -213,7 +213,12 @@ function renderTileFace(symbol, compact = false) {
   if (symbol.art === "flower") {
     return `
       <span class="tile-art flower-art ${compact ? "compact" : ""}" aria-label="${symbol.name}">
-        <i></i><i></i><i></i><span>花</span>
+        <i class="flower-stem"></i>
+        <i class="flower-leaf leaf-left"></i>
+        <i class="flower-leaf leaf-right"></i>
+        <i class="flower-bloom bloom-one"></i>
+        <i class="flower-bloom bloom-two"></i>
+        <i class="flower-bloom bloom-three"></i>
       </span>
     `;
   }
